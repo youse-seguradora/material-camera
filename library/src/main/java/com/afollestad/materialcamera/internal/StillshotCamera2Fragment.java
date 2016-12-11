@@ -479,9 +479,9 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
                                 ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                                 final byte[] bytes = new byte[buffer.remaining()];
                                 buffer.get(bytes);
-                                mCameraListener.onPictureTakenSuccess(bytes);
+                                mCameraListener.onTakePictureSuccess(bytes);
                             } catch (Exception e) {
-                                mCameraListener.onPictureTakenError(e);
+                                mCameraListener.onTakePictureError(e);
                             } finally {
                                 if (image != null) {
                                     image.close();

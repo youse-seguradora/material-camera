@@ -35,22 +35,17 @@ public class DemoEmbeddedCameraActivity extends AppCompatActivity implements Sti
     }
 
     @Override
-    public void onCameraRetry(Exception e) {
-        Log.i("onCameraRetry", String.valueOf(e));
-    }
-
-    @Override
     public void onCameraError(Exception e) {
         Log.i("onCameraError", String.valueOf(e));
     }
 
     @Override
-    public void onPictureTakenSuccess(byte[] image) {
-        Log.i("onPictureTakenSuccess", "");
+    public void onTakePictureSuccess(byte[] image) {
+        Log.i("onTakePictureSuccess", "");
     }
 
     @Override
-    public void onPictureTakenError(Exception e) {
-        Log.i("onPictureTakenError", String.valueOf(e));
+    public void onTakePictureError(Exception e) {
+        Log.i("onTakePictureError", String.valueOf(e));
     }
 }

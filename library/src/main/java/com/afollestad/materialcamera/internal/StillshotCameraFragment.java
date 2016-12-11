@@ -283,7 +283,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
         mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] bytes, Camera camera) {
-                mCameraListener.onPictureTakenSuccess(bytes);
+                mCameraListener.onTakePictureSuccess(bytes);
             }
         });
     }
