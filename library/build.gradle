@@ -5,16 +5,16 @@ ext {
     PUBLISH_ARTIFACT_ID = 'material-camera'
     PUBLISH_VERSION = '0.4.4'
     PUBLISH_VERSION_CODE = 25
-    SUPPORT_LIB_VERSION = rootProject.ext.supportLibraryVersion
+    SUPPORT_LIB_VERSION = '24.2.1'
     VIDEO_PLAYER_VERSION = '0.3.0'
     MD_VERSION = '0.9.1.0'
-    TARGET_SDK = rootProject.ext.targetSdkVersion
-    BUILD_TOOLS = rootProject.ext.buildToolsVersion
+    TARGET_SDK = 24
+    BUILD_TOOLS = '24.0.3'
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 24
+    buildToolsVersion '24.0.3'
 
     defaultConfig {
         minSdkVersion 14
