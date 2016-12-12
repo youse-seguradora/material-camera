@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Material Camera Sample</string>
+    <string name="app_name">Youse teste Android</string>
     <string name="launch_camera">Launch Camera for recording</string>
     <string name="launch_camera_stillshot">Launch Camera for stillshot</string>
     <string name="launch_from_fragment">Launch sample from a Fragment</string>
