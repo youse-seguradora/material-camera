@@ -1,6 +1,6 @@
 package com.afollestad.materialcamera.stillshot;
 
-public interface CameraControl {
+public interface TakePictureProxy {
 
     void takePicture();
 

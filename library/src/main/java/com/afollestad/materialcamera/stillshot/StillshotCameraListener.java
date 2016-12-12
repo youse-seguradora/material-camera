@@ -2,9 +2,9 @@ package com.afollestad.materialcamera.stillshot;
 
 public interface StillshotCameraListener {
 
-    void onCameraError(Exception e);
+    void onCameraError(Throwable t);
 
     void onTakePictureSuccess(final byte[] image);
 
-    void onTakePictureError(Exception e);
+    void onTakePictureError(Throwable t);
 }

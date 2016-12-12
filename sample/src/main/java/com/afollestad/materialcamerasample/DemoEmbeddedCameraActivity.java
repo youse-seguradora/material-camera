@@ -13,9 +13,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.afollestad.materialcamera.stillshot.CameraControl;
 import com.afollestad.materialcamera.stillshot.MaterialCameraStillshotFragment;
 import com.afollestad.materialcamera.stillshot.StillshotCameraListener;
+import com.afollestad.materialcamera.stillshot.TakePictureProxy;
 
 public class DemoEmbeddedCameraActivity extends AppCompatActivity implements StillshotCameraListener {
 
@@ -61,7 +61,7 @@ public class DemoEmbeddedCameraActivity extends AppCompatActivity implements Sti
 
     private void loadCamera() {
         Fragment f = MaterialCameraStillshotFragment.newInstance();
-        final CameraControl control = (CameraControl) f;
+        final TakePictureProxy takePictureProxy = (TakePictureProxy) f;
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, f)
@@ -71,15 +71,15 @@ public class DemoEmbeddedCameraActivity extends AppCompatActivity implements Sti
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        control.takePicture();
+                        takePictureProxy.takePicture();
                     }
                 });
     }
 
     @Override
-    public void onCameraError(Exception e) {
-        Toast.makeText(this, "onCameraError: " + String.valueOf(e), Toast.LENGTH_LONG).show();
-        Log.i("onCameraError", String.valueOf(e));
+    public void onCameraError(Throwable t) {
+        Toast.makeText(this, "onCameraError: " + String.valueOf(t), Toast.LENGTH_LONG).show();
+        Log.i("onCameraError", String.valueOf(t));
     }
 
     @Override
@@ -88,8 +88,8 @@ public class DemoEmbeddedCameraActivity extends AppCompatActivity implements Sti
     }
 
     @Override
-    public void onTakePictureError(Exception e) {
-        Toast.makeText(this, "onCameraError: " + String.valueOf(e), Toast.LENGTH_LONG).show();
-        Log.i("onTakePictureError", String.valueOf(e));
+    public void onTakePictureError(Throwable t) {
+        Toast.makeText(this, "onCameraError: " + String.valueOf(t), Toast.LENGTH_LONG).show();
+        Log.i("onTakePictureError", String.valueOf(t));
     }
 }

@@ -22,7 +22,7 @@ import com.afollestad.materialcamera.util.CameraUtil;
 
 import java.util.List;
 
-public class MaterialCameraStillshotFragment extends Fragment implements BaseStillshotCaptureInterface, CameraControl {
+public class MaterialCameraStillshotFragment extends Fragment implements BaseStillshotCaptureInterface, TakePictureProxy {
 
     public static final int CAMERA_POSITION_UNKNOWN = 0;
     public static final int CAMERA_POSITION_FRONT = 1;

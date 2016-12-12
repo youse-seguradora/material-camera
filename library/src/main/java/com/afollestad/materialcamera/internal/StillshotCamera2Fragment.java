@@ -480,8 +480,8 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
                                 final byte[] bytes = new byte[buffer.remaining()];
                                 buffer.get(bytes);
                                 mCameraListener.onTakePictureSuccess(bytes);
-                            } catch (Exception e) {
-                                mCameraListener.onTakePictureError(e);
+                            } catch (Throwable t) {
+                                mCameraListener.onTakePictureError(t);
                             } finally {
                                 if (image != null) {
                                     image.close();
