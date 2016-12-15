@@ -29,10 +29,10 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
 
     private static final String TAG = StillshotCameraFragment.class.getSimpleName();
     private static int MAX_ATTEMPTS_TO_AUTOFOCUS = 2;
-    private int numberOfAttemptsToAutofocus = 0;
     CameraPreview mPreviewView;
     RelativeLayout mPreviewFrame;
     List<Integer> mFlashModes;
+    private int numberOfAttemptsToAutofocus = 0;
     private Camera mCamera;
     private Point mWindowSize;
     private boolean mIsAutoFocusing;
@@ -113,7 +113,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.rootFrame) {
-            if (mCamera == null || mIsAutoFocusing) {
+            if (mCamera == null) {
                 return;
             }
 
@@ -123,6 +123,10 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
 
     private void autoFocus() {
         try {
+            if (mIsAutoFocusing) {
+                return;
+            }
+
             mIsAutoFocusing = true;
             mCamera.cancelAutoFocus();
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
@@ -136,7 +140,8 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 }
             });
         } catch (Throwable t) {
-            t.printStackTrace();
+            mIsAutoFocusing = false;
+            Log.e(TAG, "Error trying to autofocus");
         }
     }
 
@@ -277,7 +282,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 mCamera = null;
             }
         } catch (IllegalStateException e) {
-            //TODO
+            Log.e(TAG, "Error trying to close camera.");
         }
     }
 
@@ -305,6 +310,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 }
             });
         } catch (Throwable t) {
+            mIsAutoFocusing = false;
             mCameraListener.onCameraError(t);
         }
     }
