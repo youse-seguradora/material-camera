@@ -305,7 +305,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 }
             });
         } catch (Throwable t) {
-            t.printStackTrace();
+            mCameraListener.onCameraError(t);
         }
     }
 
