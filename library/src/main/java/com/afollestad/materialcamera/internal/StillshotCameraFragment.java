@@ -28,7 +28,8 @@ import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_
 public class StillshotCameraFragment extends BaseStillshotCameraFragment implements View.OnClickListener {
 
     private static final String TAG = StillshotCameraFragment.class.getSimpleName();
-
+    private static int MAX_ATTEMPTS_TO_AUTOFOCUS = 2;
+    private int numberOfAttemptsToAutofocus = 0;
     CameraPreview mPreviewView;
     RelativeLayout mPreviewFrame;
     List<Integer> mFlashModes;
@@ -116,20 +117,26 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 return;
             }
 
-            try {
-                mIsAutoFocusing = true;
-                mCamera.cancelAutoFocus();
-                mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                    @Override
-                    public void onAutoFocus(boolean success, Camera camera) {
-                        mIsAutoFocusing = false;
-                        if (!success)
-                            Log.e(TAG, "Unable to autofocus");
+            autoFocus();
+        }
+    }
+
+    private void autoFocus() {
+        try {
+            mIsAutoFocusing = true;
+            mCamera.cancelAutoFocus();
+            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    mIsAutoFocusing = false;
+
+                    if (!success) {
+                        Log.e(TAG, "Unable to autofocus");
                     }
-                });
-            } catch (Throwable t) {
-                t.printStackTrace();
-            }
+                }
+            });
+        } catch (Throwable t) {
+            t.printStackTrace();
         }
     }
 
@@ -275,11 +282,34 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     }
 
     public void takeStillshot() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//            // We could have configurable shutter sound here
-//            mCamera.enableShutterSound(false);
-//        }
+        takeStillshotAfterAutofocus();
+    }
 
+    private void takeStillshotAfterAutofocus() {
+        try {
+            mIsAutoFocusing = true;
+            mCamera.cancelAutoFocus();
+            mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                @Override
+                public void onAutoFocus(boolean success, Camera camera) {
+                    if (!success && numberOfAttemptsToAutofocus <= MAX_ATTEMPTS_TO_AUTOFOCUS) {
+                        Log.e(TAG, "Unable to autofocus before taking stillshot");
+                        numberOfAttemptsToAutofocus++;
+                        takeStillshotAfterAutofocus();
+                        return;
+                    }
+
+                    numberOfAttemptsToAutofocus = 0;
+                    mIsAutoFocusing = false;
+                    takePictureNow();
+                }
+            });
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private void takePictureNow() {
         try {
             mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
                 @Override
