@@ -6,6 +6,7 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -19,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_BACK;
 import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_FRONT;
@@ -28,7 +33,7 @@ import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_
 public class StillshotCameraFragment extends BaseStillshotCameraFragment implements View.OnClickListener {
 
     private static final String TAG = StillshotCameraFragment.class.getSimpleName();
-    private static int MAX_ATTEMPTS_TO_AUTOFOCUS = 2;
+    private static int MAX_ATTEMPTS_TO_AUTOFOCUS = 1;
     CameraPreview mPreviewView;
     RelativeLayout mPreviewFrame;
     List<Integer> mFlashModes;
@@ -36,6 +41,9 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     private Camera mCamera;
     private Point mWindowSize;
     private boolean mIsAutoFocusing;
+    private ScheduledExecutorService mScheduledExecutorService;
+    private ScheduledFuture mAutoFocusScheduledFuture;
+    private boolean mIsTakingPicture = false;
 
     public static StillshotCameraFragment newInstance() {
         return new StillshotCameraFragment();
@@ -94,6 +102,32 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
         } catch (Throwable ignored) {
         }
         mPreviewFrame = null;
+        cancelAutofocusScheduledFuture();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        cancelAutofocusScheduledFuture();
+        cancelScheduledExecutorService();
+    }
+
+    private void cancelScheduledExecutorService() {
+        if (mScheduledExecutorService != null && !mScheduledExecutorService.isShutdown()) {
+            mScheduledExecutorService.shutdown();
+        }
+    }
+
+    private void cancelAutofocusScheduledFuture() {
+        if (mAutoFocusScheduledFuture != null && !mAutoFocusScheduledFuture.isCancelled()) {
+            mAutoFocusScheduledFuture.cancel(true);
+        }
     }
 
     @Override
@@ -291,42 +325,65 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     }
 
     private void takeStillshotAfterAutofocus() {
-        try {
-            mIsAutoFocusing = true;
-            mCamera.cancelAutoFocus();
-            mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean success, Camera camera) {
-                    if (!success && numberOfAttemptsToAutofocus <= MAX_ATTEMPTS_TO_AUTOFOCUS) {
-                        Log.e(TAG, "Unable to autofocus before taking stillshot");
-                        numberOfAttemptsToAutofocus++;
-                        takeStillshotAfterAutofocus();
-                        return;
-                    }
+        if (!mIsTakingPicture) {
+            scheduleAutofocusFuture();
+            try {
+                mIsAutoFocusing = true;
+                mCamera.cancelAutoFocus();
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        cancelAutofocusScheduledFuture();
 
-                    numberOfAttemptsToAutofocus = 0;
-                    mIsAutoFocusing = false;
-                    takePictureNow();
-                }
-            });
-        } catch (Throwable t) {
-            mIsAutoFocusing = false;
-            mCameraListener.onCameraError(t);
+                        if (!success && numberOfAttemptsToAutofocus <= MAX_ATTEMPTS_TO_AUTOFOCUS) {
+                            Log.e(TAG, "Unable to autofocus before taking stillshot");
+                            numberOfAttemptsToAutofocus++;
+                            takeStillshotAfterAutofocus();
+                            return;
+                        }
+
+                        numberOfAttemptsToAutofocus = 0;
+                        mIsAutoFocusing = false;
+                        takePictureNow();
+                    }
+                });
+            } catch (Throwable t) {
+                mIsAutoFocusing = false;
+                mCameraListener.onCameraError(t);
+            }
         }
     }
 
+    private void scheduleAutofocusFuture() {
+        if (mAutoFocusScheduledFuture != null && !mAutoFocusScheduledFuture.isCancelled()) {
+            mAutoFocusScheduledFuture.cancel(true);
+        }
+
+        mAutoFocusScheduledFuture = mScheduledExecutorService.schedule(new Runnable() {
+            @Override
+            public void run() {
+                takePictureNow();
+            }
+        }, 3, TimeUnit.SECONDS);
+    }
+
     private void takePictureNow() {
-        try {
-            mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
-                @Override
-                public void onPictureTaken(byte[] bytes, Camera camera) {
-                    camera.stopPreview();
-                    camera.startPreview();
-                    mCameraListener.onTakePictureSuccess(bytes);
-                }
-            });
-        } catch (Throwable t) {
-            mCameraListener.onTakePictureError(t);
+        if (!mIsTakingPicture) {
+            mIsTakingPicture = true;
+            try {
+                mCamera.takePicture(null, null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] bytes, Camera camera) {
+                        mIsTakingPicture = false;
+                        camera.stopPreview();
+                        camera.startPreview();
+                        mCameraListener.onTakePictureSuccess(bytes);
+                    }
+                });
+            } catch (Throwable t) {
+                mIsTakingPicture = false;
+                mCameraListener.onTakePictureError(t);
+            }
         }
     }
 
