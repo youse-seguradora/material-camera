@@ -208,6 +208,8 @@ public class CameraUtil {
             return true;
         } else if ("XT1563".equals(Build.MODEL)) {
             return true;
+        } else if ("Pixel XL".equals(Build.MODEL)) {
+            return true;
         }
         return false;
     }

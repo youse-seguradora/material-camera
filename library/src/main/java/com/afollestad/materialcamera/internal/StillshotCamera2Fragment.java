@@ -120,26 +120,6 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
     private CaptureRequest mPreviewRequest;
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
-    private final TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-            openCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
-            configureTransform(width, height);
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            return true;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-        }
-    };
     /**
      * The current state of camera state for taking pictures.
      *
@@ -257,6 +237,27 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
                     break;
             }
             throwError(new Exception(errorMsg));
+        }
+    };
+    private boolean isTakingPicture = false;
+    private final TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+            openCamera();
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
+            configureTransform(width, height);
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+            return true;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
         }
     };
 
@@ -475,11 +476,14 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
                         public void onImageAvailable(ImageReader reader) {
                             Image image = null;
                             try {
-                                image = reader.acquireNextImage();
-                                ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                                final byte[] bytes = new byte[buffer.remaining()];
-                                buffer.get(bytes);
-                                mCameraListener.onTakePictureSuccess(bytes);
+                                if (isTakingPicture) {
+                                    isTakingPicture = false;
+                                    image = reader.acquireNextImage();
+                                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+                                    final byte[] bytes = new byte[buffer.remaining()];
+                                    buffer.get(bytes);
+                                    mCameraListener.onTakePictureSuccess(bytes);
+                                }
                             } catch (Throwable t) {
                                 mCameraListener.onTakePictureError(t);
                             } finally {
@@ -619,6 +623,7 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
      * @link https://github.com/googlesamples/android-Camera2Basic/blob/master/Application/src/main/java/com/example/android/camera2basic/Camera2BasicFragment.java
      */
     public void takeStillshot() {
+        isTakingPicture = true;
         lockFocus();
     }
 
