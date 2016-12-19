@@ -16,7 +16,6 @@ import com.afollestad.materialcamera.R;
 import com.afollestad.materialcamera.internal.BaseCaptureActivity;
 import com.afollestad.materialcamera.internal.BaseStillshotCameraFragment;
 import com.afollestad.materialcamera.internal.BaseStillshotCaptureInterface;
-import com.afollestad.materialcamera.internal.StillshotCamera2Fragment;
 import com.afollestad.materialcamera.internal.StillshotCameraFragment;
 import com.afollestad.materialcamera.util.CameraUtil;
 
@@ -62,8 +61,11 @@ public class MaterialCameraStillshotFragment extends Fragment implements BaseSti
     }
 
     private void loadCameraFragment() {
-        cameraFragment = CameraUtil.hasCamera2(getActivity(), true) ?
-                StillshotCamera2Fragment.newInstance() : StillshotCameraFragment.newInstance();
+        // After encountering problems related to Camera2 on several devices we decided to force Camera1 until we have an acceptable version supporting Camera2.
+//        cameraFragment = CameraUtil.hasCamera2(getActivity(), true) ?
+//                StillshotCamera2Fragment.newInstance() : StillshotCameraFragment.newInstance();
+
+        cameraFragment = StillshotCameraFragment.newInstance();
 
         getChildFragmentManager()
                 .beginTransaction()
