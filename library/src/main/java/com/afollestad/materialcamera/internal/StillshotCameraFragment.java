@@ -106,6 +106,77 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     }
 
     @Override
+    public void openCamera(@BaseCaptureActivity.CameraPosition int cameraPosition) {
+        final Activity activity = getActivity();
+        if (null == activity || activity.isFinishing()) return;
+        try {
+            final int mBackCameraId = mCaptureInterface.getBackCamera() != null ? (Integer) mCaptureInterface.getBackCamera() : -1;
+            final int mFrontCameraId = mCaptureInterface.getFrontCamera() != null ? (Integer) mCaptureInterface.getFrontCamera() : -1;
+            if (mBackCameraId == -1 || mFrontCameraId == -1) {
+                int numberOfCameras = Camera.getNumberOfCameras();
+                if (numberOfCameras == 0) {
+                    throwError(new Exception("No cameras are available on this device."));
+                    return;
+                }
+
+                for (int i = 0; i < numberOfCameras; i++) {
+                    //noinspection ConstantConditions
+                    if (mFrontCameraId != -1 && mBackCameraId != -1) break;
+                    Camera.CameraInfo info = new Camera.CameraInfo();
+                    Camera.getCameraInfo(i, info);
+                    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && mFrontCameraId == -1) {
+                        mCaptureInterface.setFrontCamera(i);
+                    } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK && mBackCameraId == -1) {
+                        mCaptureInterface.setBackCamera(i);
+                    }
+                }
+            }
+
+            mCaptureInterface.setCameraPosition(cameraPosition);
+
+            if (mWindowSize == null)
+                mWindowSize = new Point();
+            activity.getWindowManager().getDefaultDisplay().getSize(mWindowSize);
+            final int toOpen = getCurrentCameraId();
+            mCamera = Camera.open(toOpen == -1 ? 0 : toOpen);
+            Camera.Parameters parameters = mCamera.getParameters();
+            List<Camera.Size> videoSizes = parameters.getSupportedVideoSizes();
+            if (videoSizes == null || videoSizes.size() == 0)
+                videoSizes = parameters.getSupportedPreviewSizes();
+            Camera.Size mVideoSize = chooseVideoSize((BaseStillshotCaptureInterface) getParentFragment(), videoSizes);
+            Camera.Size previewSize = chooseOptimalSize(parameters.getSupportedPreviewSizes(),
+                    mWindowSize.x, mWindowSize.y, mVideoSize);
+
+            if (ManufacturerUtil.isSamsungGalaxyS3()) {
+                parameters.setPreviewSize(ManufacturerUtil.SAMSUNG_S3_PREVIEW_WIDTH,
+                        ManufacturerUtil.SAMSUNG_S3_PREVIEW_HEIGHT);
+            } else {
+                parameters.setPreviewSize(previewSize.width, previewSize.height);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    parameters.setRecordingHint(true);
+            }
+
+            Camera.Size mStillShotSize = getHighestSupportedStillShotSize(parameters.getSupportedPictureSizes());
+            parameters.setPictureSize(mStillShotSize.width, mStillShotSize.height);
+
+            setCameraDisplayOrientation(parameters);
+            mCamera.setParameters(parameters);
+
+            // NOTE: onFlashModesLoaded should not be called while modifying camera parameters as
+            //       the flash parameters set in setupFlashMode will then be overwritten
+            mFlashModes = CameraUtil.getSupportedFlashModes(this.getActivity(), parameters);
+            mCaptureInterface.setFlashModes(mFlashModes);
+            onFlashModesLoaded();
+
+            createPreview();
+        } catch (IllegalStateException e) {
+            throwError(new Exception("Cannot access the camera.", e));
+        } catch (RuntimeException e2) {
+            throwError(new Exception("Cannot access the camera, you may need to restart your device.", e2));
+        }
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -181,73 +252,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
 
     @Override
     public void openCamera() {
-        final Activity activity = getActivity();
-        if (null == activity || activity.isFinishing()) return;
-        try {
-            final int mBackCameraId = mCaptureInterface.getBackCamera() != null ? (Integer) mCaptureInterface.getBackCamera() : -1;
-            final int mFrontCameraId = mCaptureInterface.getFrontCamera() != null ? (Integer) mCaptureInterface.getFrontCamera() : -1;
-            if (mBackCameraId == -1 || mFrontCameraId == -1) {
-                int numberOfCameras = Camera.getNumberOfCameras();
-                if (numberOfCameras == 0) {
-                    throwError(new Exception("No cameras are available on this device."));
-                    return;
-                }
-
-                for (int i = 0; i < numberOfCameras; i++) {
-                    //noinspection ConstantConditions
-                    if (mFrontCameraId != -1 && mBackCameraId != -1) break;
-                    Camera.CameraInfo info = new Camera.CameraInfo();
-                    Camera.getCameraInfo(i, info);
-                    if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && mFrontCameraId == -1) {
-                        mCaptureInterface.setFrontCamera(i);
-                    } else if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK && mBackCameraId == -1) {
-                        mCaptureInterface.setBackCamera(i);
-                    }
-                }
-            }
-
-            mCaptureInterface.setCameraPosition(CAMERA_POSITION_BACK);
-
-            if (mWindowSize == null)
-                mWindowSize = new Point();
-            activity.getWindowManager().getDefaultDisplay().getSize(mWindowSize);
-            final int toOpen = getCurrentCameraId();
-            mCamera = Camera.open(toOpen == -1 ? 0 : toOpen);
-            Camera.Parameters parameters = mCamera.getParameters();
-            List<Camera.Size> videoSizes = parameters.getSupportedVideoSizes();
-            if (videoSizes == null || videoSizes.size() == 0)
-                videoSizes = parameters.getSupportedPreviewSizes();
-            Camera.Size mVideoSize = chooseVideoSize((BaseStillshotCaptureInterface) getParentFragment(), videoSizes);
-            Camera.Size previewSize = chooseOptimalSize(parameters.getSupportedPreviewSizes(),
-                    mWindowSize.x, mWindowSize.y, mVideoSize);
-
-            if (ManufacturerUtil.isSamsungGalaxyS3()) {
-                parameters.setPreviewSize(ManufacturerUtil.SAMSUNG_S3_PREVIEW_WIDTH,
-                        ManufacturerUtil.SAMSUNG_S3_PREVIEW_HEIGHT);
-            } else {
-                parameters.setPreviewSize(previewSize.width, previewSize.height);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                    parameters.setRecordingHint(true);
-            }
-
-            Camera.Size mStillShotSize = getHighestSupportedStillShotSize(parameters.getSupportedPictureSizes());
-            parameters.setPictureSize(mStillShotSize.width, mStillShotSize.height);
-
-            setCameraDisplayOrientation(parameters);
-            mCamera.setParameters(parameters);
-
-            // NOTE: onFlashModesLoaded should not be called while modifying camera parameters as
-            //       the flash parameters set in setupFlashMode will then be overwritten
-            mFlashModes = CameraUtil.getSupportedFlashModes(this.getActivity(), parameters);
-            mCaptureInterface.setFlashModes(mFlashModes);
-            onFlashModesLoaded();
-
-            createPreview();
-        } catch (IllegalStateException e) {
-            throwError(new Exception("Cannot access the camera.", e));
-        } catch (RuntimeException e2) {
-            throwError(new Exception("Cannot access the camera, you may need to restart your device.", e2));
-        }
+        openCamera(BaseCaptureActivity.CAMERA_POSITION_BACK);
     }
 
     private Camera.Size getHighestSupportedStillShotSize(List<Camera.Size> supportedPictureSizes) {

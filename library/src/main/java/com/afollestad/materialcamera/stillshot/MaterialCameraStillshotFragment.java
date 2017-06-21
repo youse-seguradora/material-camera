@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,6 +22,8 @@ import com.afollestad.materialcamera.util.CameraUtil;
 
 import java.util.List;
 
+import static com.afollestad.materialcamera.stillshot.CameraFacing.BACK;
+
 public class MaterialCameraStillshotFragment extends Fragment implements BaseStillshotCaptureInterface, TakePictureProxy {
 
     public static final int CAMERA_POSITION_UNKNOWN = 0;
@@ -36,6 +39,7 @@ public class MaterialCameraStillshotFragment extends Fragment implements BaseSti
     private Object mFrontCameraId;
     private Object mBackCameraId;
     private List<Integer> mFlashModes;
+    private CameraFacing cameraFacing = BACK;
 
     public static MaterialCameraStillshotFragment newInstance() {
         return new MaterialCameraStillshotFragment();
@@ -116,7 +120,25 @@ public class MaterialCameraStillshotFragment extends Fragment implements BaseSti
     }
 
     @Override
-    public void setCameraPosition(int position) {
+    public void changeCameraFacing(@NonNull CameraFacing cameraFacing) {
+        if (this.cameraFacing == cameraFacing) {
+            return;
+        }
+        this.cameraFacing = cameraFacing;
+        switch (cameraFacing) {
+            case BACK:
+                setCameraPosition(BaseCaptureActivity.CAMERA_POSITION_BACK);
+                cameraFragment.openCamera(BaseCaptureActivity.CAMERA_POSITION_BACK);
+                break;
+            case FRONT:
+                setCameraPosition(BaseCaptureActivity.CAMERA_POSITION_FRONT);
+                cameraFragment.openCamera(BaseCaptureActivity.CAMERA_POSITION_FRONT);
+                break;
+        }
+    }
+
+    @Override
+    public void setCameraPosition(@BaseCaptureActivity.CameraPosition int position) {
         mCameraPosition = position;
     }
 

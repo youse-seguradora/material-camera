@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialcamera.stillshot.CameraFacing;
 import com.afollestad.materialcamera.stillshot.MaterialCameraStillshotFragment;
 import com.afollestad.materialcamera.stillshot.StillshotCameraListener;
 import com.afollestad.materialcamera.stillshot.TakePictureProxy;
@@ -20,6 +21,8 @@ import com.afollestad.materialcamera.stillshot.TakePictureProxy;
 public class DemoEmbeddedCameraActivity extends AppCompatActivity implements StillshotCameraListener {
 
     private static final int REQUEST_CAMERA_PERMISSION = 1337;
+
+    private CameraFacing cameraFacing = CameraFacing.BACK;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,6 +75,19 @@ public class DemoEmbeddedCameraActivity extends AppCompatActivity implements Sti
                     @Override
                     public void onClick(View view) {
                         takePictureProxy.takePicture();
+                    }
+                });
+
+        findViewById(R.id.change_camera_facing_button)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (cameraFacing == CameraFacing.FRONT) {
+                            cameraFacing = CameraFacing.BACK;
+                        } else {
+                            cameraFacing = CameraFacing.FRONT;
+                        }
+                        takePictureProxy.changeCameraFacing(cameraFacing);
                     }
                 });
     }

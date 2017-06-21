@@ -11,4 +11,10 @@
         android:layout_height="50dp"
         android:text="Take picture" />
 
+    <Button
+        android:id="@+id/change_camera_facing_button"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="Change camera facing" />
+
 </RelativeLayout>

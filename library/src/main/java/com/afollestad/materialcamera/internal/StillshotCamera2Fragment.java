@@ -333,44 +333,7 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        startBackgroundThread();
-        if (mTextureView.isAvailable()) {
-            openCamera();
-        } else {
-            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        stopBackgroundThread();
-        super.onPause();
-    }
-
-    /**
-     * Starts a background thread and its {@link Handler}.
-     */
-    private void startBackgroundThread() {
-        mBackgroundThread = new HandlerThread("CameraBackground");
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-    }
-
-    private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            Log.e(TAG, String.valueOf(e));
-        }
-    }
-
-    @Override
-    public void openCamera() {
+    public void openCamera(@BaseCaptureActivity.CameraPosition int cameraPosition) {
         final int width = mTextureView.getWidth();
         final int height = mTextureView.getHeight();
 
@@ -399,7 +362,7 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
                 }
             }
 
-            mCaptureInterface.setCameraPosition(CAMERA_POSITION_BACK);
+            mCaptureInterface.setCameraPosition(cameraPosition);
 
             // Choose the sizes for camera preview and video recording
             CameraCharacteristics characteristics = manager.getCameraCharacteristics((String) mCaptureInterface.getCurrentCameraId());
@@ -521,6 +484,48 @@ public class StillshotCamera2Fragment extends BaseStillshotCameraFragment implem
         } catch (InterruptedException e) {
             throwError(new Exception("Interrupted while trying to lock camera opening.", e));
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startBackgroundThread();
+        if (mTextureView.isAvailable()) {
+            openCamera();
+        } else {
+            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        stopBackgroundThread();
+        super.onPause();
+    }
+
+    /**
+     * Starts a background thread and its {@link Handler}.
+     */
+    private void startBackgroundThread() {
+        mBackgroundThread = new HandlerThread("CameraBackground");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+
+    private void stopBackgroundThread() {
+        mBackgroundThread.quitSafely();
+        try {
+            mBackgroundThread.join();
+            mBackgroundThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            Log.e(TAG, String.valueOf(e));
+        }
+    }
+
+    @Override
+    public void openCamera() {
+        openCamera(BaseCaptureActivity.CAMERA_POSITION_BACK);
     }
 
     @Override
