@@ -2,12 +2,14 @@ package com.afollestad.materialcamera.internal;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.afollestad.materialcamera.R;
+import com.afollestad.materialcamera.stillshot.CameraFacing;
 import com.afollestad.materialcamera.stillshot.StillshotCameraListener;
 
 /**
@@ -45,6 +47,8 @@ public abstract class BaseStillshotCameraFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
     }
+
+    public abstract void openCamera(@BaseCaptureActivity.CameraPosition final int cameraPosition);
 
     public abstract void openCamera();
 
