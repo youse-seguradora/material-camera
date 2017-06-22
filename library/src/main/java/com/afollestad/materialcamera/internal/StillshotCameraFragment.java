@@ -25,7 +25,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_BACK;
 import static com.afollestad.materialcamera.internal.BaseCaptureActivity.CAMERA_POSITION_FRONT;
 
 @SuppressWarnings("deprecation")
@@ -138,6 +137,12 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
                 mWindowSize = new Point();
             activity.getWindowManager().getDefaultDisplay().getSize(mWindowSize);
             final int toOpen = getCurrentCameraId();
+
+            //Explicitly releasing the resource to make it possible to switch camera facing on Samsung devices.
+            if (mCamera != null) {
+                mCamera.release();
+            }
+
             mCamera = Camera.open(toOpen == -1 ? 0 : toOpen);
             Camera.Parameters parameters = mCamera.getParameters();
             List<Camera.Size> videoSizes = parameters.getSupportedVideoSizes();
