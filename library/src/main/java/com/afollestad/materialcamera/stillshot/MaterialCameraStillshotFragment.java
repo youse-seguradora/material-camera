@@ -78,9 +78,6 @@ public class MaterialCameraStillshotFragment extends Fragment implements BaseSti
     }
 
     private void setupWindow() {
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             final Window window = getActivity().getWindow();
             window.setStatusBarColor(Color.TRANSPARENT);
