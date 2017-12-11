@@ -5,17 +5,17 @@ ext {
     PUBLISH_GROUP_ID = 'com.afollestad'
     PUBLISH_ARTIFACT_ID = 'material-camera'
     PUBLISH_VERSION = '0.4.4'
-    PUBLISH_VERSION_CODE = 25
-    SUPPORT_LIB_VERSION = '26.0.2'
+    PUBLISH_VERSION_CODE = 27
+    SUPPORT_LIB_VERSION = '27.0.2'
     VIDEO_PLAYER_VERSION = '0.3.0'
     MD_VERSION = '0.9.1.0'
-    TARGET_SDK = 26
-    BUILD_TOOLS = '26.0.1'
+    TARGET_SDK = 27
+    BUILD_TOOLS = '27.0.2'
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.1'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.2'
 
     defaultConfig {
         minSdkVersion 14
@@ -42,8 +42,17 @@ repositories {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
-    compile "com.afollestad:easyvideoplayer:$VIDEO_PLAYER_VERSION"
-    compile "com.afollestad.material-dialogs:core:$MD_VERSION"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
+    implementation "com.afollestad:easyvideoplayer:$VIDEO_PLAYER_VERSION"
+    implementation "com.afollestad.material-dialogs:core:$MD_VERSION"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "com.android.support:support-v13:$SUPPORT_LIB_VERSION"
+        force "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
+        force "com.android.support:recyclerview-v7:$SUPPORT_LIB_VERSION"
+        force "com.android.support:support-annotations:$SUPPORT_LIB_VERSION"
+    }
 }

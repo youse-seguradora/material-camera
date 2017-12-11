@@ -403,7 +403,7 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
                             .negativeText(android.R.string.cancel)
                             .onPositive(new MaterialDialog.SingleButtonCallback() {
                                 @Override
-                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                     mIsRecording = startRecordingVideo();
                                 }
                             })
