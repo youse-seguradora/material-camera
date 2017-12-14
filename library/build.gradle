@@ -48,6 +48,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
+// Note : This is here because com.afollestad:easyvideoplayer with version 0.3.0
+// and com.afollestad.material-dialogs with version 0.9.1.0 has an outdated version of this library.
 configurations.all {
     resolutionStrategy {
         force "com.android.support:support-v13:$SUPPORT_LIB_VERSION"
