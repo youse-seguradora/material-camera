@@ -6,16 +6,16 @@ ext {
     PUBLISH_ARTIFACT_ID = 'material-camera'
     PUBLISH_VERSION = '0.4.4'
     PUBLISH_VERSION_CODE = 27
-    SUPPORT_LIB_VERSION = '27.1.0'
+    SUPPORT_LIB_VERSION = '27.0.2'
     VIDEO_PLAYER_VERSION = '0.3.0'
-    MD_VERSION = '0.9.6.0'
+    MD_VERSION = '0.9.1.0'
     TARGET_SDK = 27
-    BUILD_TOOLS = '27.0.3'
+    BUILD_TOOLS = '27.0.2'
 }
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '27.0.2'
 
     defaultConfig {
         minSdkVersion 14
@@ -49,7 +49,7 @@ dependencies {
 }
 
 // Note : This is here because com.afollestad:easyvideoplayer with version 0.3.0
-// and com.afollestad.material-dialogs with version 0.9.6.0 has an outdated version of this library.
+// and com.afollestad.material-dialogs with version 0.9.1.0 has an outdated version of this library.
 configurations.all {
     resolutionStrategy {
         force "com.android.support:support-v13:$SUPPORT_LIB_VERSION"
