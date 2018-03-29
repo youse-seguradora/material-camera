@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 ext {
     PUBLISH_GROUP_ID = 'com.afollestad'
@@ -45,7 +44,6 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
     implementation "com.afollestad:easyvideoplayer:$VIDEO_PLAYER_VERSION"
     implementation "com.afollestad.material-dialogs:core:$MD_VERSION"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 // Note : This is here because com.afollestad:easyvideoplayer with version 0.3.0
