@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.view.ViewGroup;
 
 import com.afollestad.materialcamera.R;
 import com.afollestad.materialcamera.util.CameraUtil;
@@ -34,7 +34,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     private static final String TAG = StillshotCameraFragment.class.getSimpleName();
     private static int MAX_ATTEMPTS_TO_AUTOFOCUS = 1;
     CameraPreview mPreviewView;
-    RelativeLayout mPreviewFrame;
+    ViewGroup mPreviewFrame;
     List<Integer> mFlashModes;
     private int numberOfAttemptsToAutofocus = 0;
     private Camera mCamera;
@@ -89,7 +89,7 @@ public class StillshotCameraFragment extends BaseStillshotCameraFragment impleme
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mPreviewFrame = (RelativeLayout) view.findViewById(R.id.rootFrame);
+        mPreviewFrame =  view.findViewById(R.id.rootFrame);
         mPreviewFrame.setOnClickListener(this);
     }
 

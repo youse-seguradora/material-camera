@@ -307,7 +307,7 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
         if (mPreviewFrame.getChildCount() > 0 && mPreviewFrame.getChildAt(0) instanceof CameraPreview)
             mPreviewFrame.removeViewAt(0);
         mPreviewFrame.addView(mPreviewView, 0);
-        mPreviewView.setAspectRatio(mWindowSize.x, mWindowSize.y);
+        mPreviewView.setAspectRatio(mPreviewFrame.getWidth(), mPreviewFrame.getHeight());
     }
 
     @Override

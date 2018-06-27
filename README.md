@@ -77,7 +77,7 @@ private final static int CAMERA_RQ = 6969;
 
 File saveFolder = new File(Environment.getExternalStorageDirectory(), "MaterialCamera Sample");
 if (!saveFolder.mkdirs())
-    throw new RuntimeException("Unable to create save directory, make sure WRITE_EXTERNAL_STORAGE permission is granted.");
+    throw new RuntimeException("Unable to create save directory, make sure WRITE_EXTERNAL_STORAGE permissions is granted.");
 
 new MaterialCamera(this)                               // Constructor takes an Activity
     .allowRetry(true)                                  // Whether or not 'Retry' is visible during playback
